@@ -1,6 +1,3 @@
-ARG PYTHON_VERSION=3.14
-ARG USER_NAME=richard
-ARG GROUP_NAME=vibers
 ARG UBUNTU_TAG=latest
 
 # ==========================
@@ -8,7 +5,7 @@ ARG UBUNTU_TAG=latest
 # ==========================
 FROM ubuntu:${UBUNTU_TAG} AS builder
 
-ARG PYTHON_VERSION
+ARG PYTHON_VERSION=3.14
 
 # Install uv seamlessly from its official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -37,6 +34,7 @@ RUN uv sync --frozen --no-install-project --no-dev
 COPY src src
 COPY templates templates
 COPY static static
+COPY README.md README.md
 
 # Install the project itself
 RUN uv sync --frozen --no-dev
@@ -47,8 +45,8 @@ RUN uv sync --frozen --no-dev
 # ==========================
 FROM ubuntu:${UBUNTU_TAG}
 
-ARG USER_NAME
-ARG GROUP_NAME
+ARG USER_NAME=richard
+ARG GROUP_NAME=vibers
 
 # Create user and group
 RUN groupadd -r ${GROUP_NAME} && useradd -m -r -g ${GROUP_NAME} ${USER_NAME}
