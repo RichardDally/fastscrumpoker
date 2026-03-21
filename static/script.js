@@ -65,7 +65,7 @@ function connectWebSocket(room, name) {
         joinScreen.classList.add('hidden');
         gameScreen.classList.remove('hidden');
         document.getElementById('display-room-id').textContent = room;
-        document.getElementById('display-username').textContent = name;
+        document.getElementById('display-username').textContent = `${name} (#${myUserId.split('-')[0]})`;
         renderVotingCards();
     };
 
@@ -152,7 +152,7 @@ function updateUI() {
         
         const nameEl = document.createElement('div');
         nameEl.className = 'p-name';
-        nameEl.textContent = p.name + (p.user_id === roomState.my_user_id ? ' (You)' : '') + (p.is_host ? ' 👑' : '');
+        nameEl.textContent = `${p.name} (#${p.user_id.split('-')[0]})` + (p.user_id === roomState.my_user_id ? ' (You)' : '') + (p.is_host ? ' 👑' : '');
         
         el.appendChild(cardEl);
         el.appendChild(nameEl);

@@ -1,5 +1,9 @@
 import json
+import logging
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
@@ -28,6 +32,7 @@ async def room(request: Request, room_id: str):
 
 @app.websocket("/ws/{room_id}/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, room_id: str, user_id: str, name: str = "Anonymous"):
+    logger.info(f"Incoming WebSocket connection: room_id={room_id}, user_id={user_id}, name={name}")
     await manager.connect(room_id, user_id, name, websocket)
     try:
         while True:

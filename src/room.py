@@ -1,5 +1,8 @@
+import logging
 from fastapi import WebSocket
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class Participant(BaseModel):
@@ -37,10 +40,12 @@ class RoomManager:
         if user_id in room.participants:
             room.participants[user_id].connected = True
             room.participants[user_id].name = name
+            logger.info(f"User {name} ({user_id}) reconnected to room {room_id}. Host: {room.participants[user_id].is_host}")
         else:
             room.participants[user_id] = Participant(
                 user_id=user_id, name=name, is_host=is_host
             )
+            logger.info(f"User {name} ({user_id}) joined room {room_id}. Host: {is_host}")
             
         await self.broadcast_room_state(room_id)
 
@@ -51,7 +56,9 @@ class RoomManager:
         if room_id in self.rooms:
             room = self.rooms[room_id]
             if user_id in room.participants:
+                p_name = room.participants[user_id].name
                 room.participants[user_id].connected = False
+                logger.info(f"User {p_name} ({user_id}) disconnected from room {room_id}")
                 # If host leaves permanently we could re-assign host, but we just mark disconnected for now
             # Only broadcast if room still has active users, otherwise cleanup?
             # Let's keep the room forever for simplicity, but we will broadcast the status
@@ -64,24 +71,32 @@ class RoomManager:
             return
 
         action_type = action.get("action")
+        p_name = participant.name
+        logger.info(f"Processing action '{action_type}' for room {room_id} from user {p_name} ({user_id})")
         
         if action_type == "vote":
             # Can only vote if not revealed
             if not room.revealed:
-                participant.vote = str(action.get("value"))
+                vote_value = action.get("value")
+                participant.vote = str(vote_value)
+                logger.info(f"User {p_name} ({user_id}) in room {room_id} voted: {vote_value}")
         
         elif action_type == "reveal" and participant.is_host:
             room.revealed = True
+            logger.info(f"Host {p_name} ({user_id}) revealed votes in room {room_id}")
             
         elif action_type == "reset" and participant.is_host:
             room.revealed = False
             for p in room.participants.values():
                 p.vote = None
+            logger.info(f"Host {p_name} ({user_id}) reset room {room_id}")
                 
         elif action_type == "kick" and participant.is_host:
             target_id = action.get("target_id")
             if target_id and target_id in room.participants:
+                target_name = room.participants[target_id].name
                 del room.participants[target_id]
+                logger.info(f"Host {p_name} ({user_id}) kicked user {target_name} ({target_id}) from room {room_id}")
                 # Also close their websocket if active
                 if target_id in self.active_connections:
                     ws = self.active_connections[target_id]
