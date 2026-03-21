@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Poker Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="join-screen" class="screen">
+        <div class="glass-card">
+            <h1>Scrum Poker</h1>
+            <p>Estimate story points effortlessly</p>
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Enter your name..." autocomplete="off">
+            </div>
+            <div class="input-group" id="room-input-group">
+                <input type="text" id="room-id" placeholder="Room ID (optional)" autocomplete="off">
+            </div>
+            <button id="join-btn" class="primary-btn">Join / Create Room</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <header>
+            <div class="header-left">
+                <h2>Room: <span id="display-room-id"></span></h2>
+                <button id="copy-link-btn" class="secondary-btn small" title="Copy Invite Link">🔗 Invite</button>
+            </div>
+            <div class="header-right">
+                <span id="display-username"></span>
+            </div>
+        </header>
+
+        <main>
+            <div class="table-area">
+                <div class="table-center">
+                    <p id="game-status">Waiting for votes...</p>
+                </div>
+                <div id="participants-list" class="participants-circle">
+                    <!-- Participants rendered here -->
+                </div>
+            </div>
+
+            <div class="controls-area">
+                <div id="host-controls" class="hidden">
+                    <button id="reveal-btn" class="action-btn reveal">Reveal Cards</button>
+                    <button id="reset-btn" class="action-btn reset">Next Round</button>
+                </div>
+                
+                <div id="voting-cards" class="cards-container">
+                    <!-- Cards rendered here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden element to store the room_id if injected by server -->
+    <script>
+        window.SERVER_ROOM_ID = "{{ room_id|default('') }}";
+    </script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
