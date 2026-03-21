@@ -94,8 +94,15 @@ function updateUI() {
     // 1. Host controls
     const me = roomState.participants.find(p => p.user_id === roomState.my_user_id);
     const hostControls = document.getElementById('host-controls');
+    const revealBtn = document.getElementById('reveal-btn');
+    
     if (me && me.is_host) {
         hostControls.classList.remove('hidden');
+        if (roomState.revealed) {
+            revealBtn.textContent = 'Hide Cards';
+        } else {
+            revealBtn.textContent = 'Reveal Cards';
+        }
     } else {
         hostControls.classList.add('hidden');
     }
@@ -184,7 +191,11 @@ function renderVotingCards() {
 
 // Host actions
 document.getElementById('reveal-btn').addEventListener('click', () => {
-    sendAction({ action: 'reveal' });
+    if (roomState && roomState.revealed) {
+        sendAction({ action: 'hide' });
+    } else {
+        sendAction({ action: 'reveal' });
+    }
 });
 
 document.getElementById('reset-btn').addEventListener('click', () => {

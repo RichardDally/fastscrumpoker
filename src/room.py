@@ -85,6 +85,10 @@ class RoomManager:
             room.revealed = True
             logger.info(f"Host {p_name} ({user_id}) revealed votes in room {room_id}")
             
+        elif action_type == "hide" and participant.is_host:
+            room.revealed = False
+            logger.info(f"Host {p_name} ({user_id}) hid votes in room {room_id}")
+            
         elif action_type == "reset" and participant.is_host:
             room.revealed = False
             for p in room.participants.values():
