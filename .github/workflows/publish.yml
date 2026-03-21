@@ -67,8 +67,9 @@ jobs:
           NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           echo "New version: $NEW_VERSION"
 
-          # Update pyproject.toml
+          # Update pyproject.toml and src/__version__.py
           sed -i "s/^version = \".*\"/version = \"${NEW_VERSION}\"/" pyproject.toml
+          sed -i "s/__version__ = \".*\"/__version__ = \"${NEW_VERSION}\"/" src/__version__.py
 
           # Set outputs (commit and push deferred until publish succeeds)
           echo "version=v${NEW_VERSION}" >> $GITHUB_OUTPUT
@@ -78,7 +79,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: version-bump-files
-          path: pyproject.toml
+          path: |
+            pyproject.toml
+            src/__version__.py
 
   build-wheel:
     name: Build Python wheel
@@ -119,13 +122,13 @@ jobs:
           version: "latest"
 
       - name: Set up Python
-        run: uv python install 3.13
+        run: uv python install 3.14
 
       - name: Install dependencies
-        run: uv sync --all-groups
+        run: uv sync --all-extras
 
       - name: Run tests
-        run: uv run pytest tests/ -v
+        run: uv run --extra dev pytest -v
 
       - name: Build package
         run: uv build
@@ -241,7 +244,7 @@ jobs:
 
       - name: Commit and push version bump
         run: |
-          git add pyproject.toml
+          git add pyproject.toml src/__version__.py
           git commit -m "Bump version to ${{ needs.bump-version.outputs.version_num }}"
           git tag "${{ needs.bump-version.outputs.version }}"
           git push origin main --tags
