@@ -18,6 +18,16 @@ const roomIdInput = document.getElementById('room-id');
 const joinBtn = document.getElementById('join-btn');
 const copyLinkBtn = document.getElementById('copy-link-btn');
 
+const jiraBanner = document.getElementById('jira-banner');
+const jiraSummary = document.getElementById('jira-summary');
+const jiraDescription = document.getElementById('jira-description');
+const jiraControls = document.getElementById('jira-controls');
+const jiraKeyInput = document.getElementById('jira-key-input');
+const fetchJiraBtn = document.getElementById('fetch-jira-btn');
+const jiraPushControls = document.getElementById('jira-push-controls');
+const jiraPointsInput = document.getElementById('jira-points-input');
+const pushJiraBtn = document.getElementById('push-jira-btn');
+
 // If URL has room, prefill
 if (currentRoomId) {
     roomIdInput.value = currentRoomId;
@@ -103,8 +113,26 @@ function updateUI() {
         } else {
             revealBtn.textContent = 'Reveal Cards';
         }
+
+        if (roomState.jira_enabled) {
+            jiraControls.classList.remove('hidden');
+            if (roomState.revealed && roomState.jira_issue) {
+                jiraPushControls.classList.remove('hidden');
+            } else {
+                jiraPushControls.classList.add('hidden');
+            }
+        }
     } else {
         hostControls.classList.add('hidden');
+    }
+
+    // Jira Banner
+    if (roomState.jira_issue) {
+        jiraBanner.classList.remove('hidden');
+        jiraSummary.textContent = `${roomState.jira_issue.key}: ${roomState.jira_issue.summary}`;
+        jiraDescription.textContent = roomState.jira_issue.description || 'No description provided.';
+    } else {
+        jiraBanner.classList.add('hidden');
     }
 
     // 2. Game Status
@@ -200,4 +228,19 @@ document.getElementById('reveal-btn').addEventListener('click', () => {
 
 document.getElementById('reset-btn').addEventListener('click', () => {
     sendAction({ action: 'reset' });
+});
+
+fetchJiraBtn.addEventListener('click', () => {
+    const key = jiraKeyInput.value.trim();
+    if (key) {
+        sendAction({ action: 'fetch_jira_issue', issue_key: key });
+    }
+});
+
+pushJiraBtn.addEventListener('click', () => {
+    const points = jiraPointsInput.value.trim();
+    if (points) {
+        sendAction({ action: 'push_jira_points', points: points });
+        alert(`Instructed backend to push ${points} points to Jira!`);
+    }
 });

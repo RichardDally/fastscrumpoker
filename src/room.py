@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
+from src import jira
 
 class Participant(BaseModel):
     user_id: str
@@ -16,6 +17,7 @@ class RoomState(BaseModel):
     room_id: str
     participants: dict[str, Participant] = {}
     revealed: bool = False
+    jira_issue: dict | None = None
 
 class RoomManager:
     def __init__(self):
@@ -106,6 +108,26 @@ class RoomManager:
                     ws = self.active_connections[target_id]
                     await ws.close()
                     del self.active_connections[target_id]
+                    
+        elif action_type == "fetch_jira_issue" and participant.is_host:
+            issue_key = action.get("issue_key")
+            if issue_key:
+                logger.info(f"Host {p_name} ({user_id}) fetching Jira issue {issue_key}")
+                issue_data = await jira.get_issue(issue_key)
+                room.jira_issue = issue_data
+                
+        elif action_type == "push_jira_points" and participant.is_host:
+            points = action.get("points")
+            if room.jira_issue and points is not None:
+                issue_key = room.jira_issue["key"]
+                logger.info(f"Host {p_name} ({user_id}) pushing {points} points to Jira issue {issue_key} in room {room_id}")
+                try:
+                    points_float = float(points)
+                    success = await jira.update_story_points(issue_key, points_float)
+                    if success:
+                        logger.info(f"Successfully pushed points to {issue_key}")
+                except ValueError:
+                    logger.warning(f"Invalid points format: {points}")
 
         await self.broadcast_room_state(room_id)
 
@@ -137,7 +159,9 @@ class RoomManager:
             "room_id": room.room_id,
             "revealed": room.revealed,
             "participants": participants_data,
-            "my_user_id": for_user_id
+            "my_user_id": for_user_id,
+            "jira_enabled": jira.IS_ENABLED,
+            "jira_issue": room.jira_issue,
         }
 
     async def broadcast_room_state(self, room_id: str):

@@ -34,6 +34,11 @@
         </header>
 
         <main>
+            <div id="jira-banner" class="glass-card hidden" style="margin-bottom: 20px; text-align: left;">
+                <h3 id="jira-summary" style="margin-top: 0;"></h3>
+                <p id="jira-description" style="color: var(--text-muted); font-size: 0.9em; max-height: 150px; overflow-y: auto;"></p>
+            </div>
+
             <div class="table-area">
                 <div class="table-center">
                     <p id="game-status">Waiting for votes...</p>
@@ -47,6 +52,19 @@
                 <div id="host-controls" class="hidden">
                     <button id="reveal-btn" class="action-btn reveal">Reveal Cards</button>
                     <button id="reset-btn" class="action-btn reset">Next Round</button>
+                    
+                    <div id="jira-controls" class="hidden" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                        <span style="font-size: 0.85em; font-weight: 600; color: var(--accent);">JIRA INTEGRATION</span>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <input type="text" id="jira-key-input" placeholder="Issue Key (e.g. PROJ-123)" autocomplete="off">
+                        </div>
+                        <button id="fetch-jira-btn" class="secondary-btn small" style="width: 100%;">Fetch Issue</button>
+                        
+                        <div id="jira-push-controls" class="hidden" style="display: flex; gap: 5px; margin-top: 5px;">
+                            <input type="number" id="jira-points-input" placeholder="Points" step="0.5" style="width: 80px; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.2); color: white;">
+                            <button id="push-jira-btn" class="action-btn reveal" style="padding: 10px; font-size: 0.9em; flex: 1;">Save Points</button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="voting-cards" class="cards-container">
