@@ -1,4 +1,4 @@
-const VOTE_VALUES = ['0', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '?', '☕'];
+const VOTE_VALUES = ['0.5', '1', '2', '3', '5', '8'];
 
 let ws;
 let currentRoomId = window.SERVER_ROOM_ID;
@@ -40,7 +40,7 @@ if (currentUsername) {
 joinBtn.addEventListener('click', () => {
     const name = usernameInput.value.trim();
     let room = currentRoomId || roomIdInput.value.trim() || crypto.randomUUID().split('-')[0];
-    
+
     if (!name) {
         alert('Please enter your name');
         return;
@@ -48,7 +48,7 @@ joinBtn.addEventListener('click', () => {
 
     currentUsername = name;
     localStorage.setItem('scrum_username', name);
-    
+
     // Update URL without reload
     if (room !== currentRoomId) {
         currentRoomId = room;
@@ -68,7 +68,7 @@ copyLinkBtn.addEventListener('click', () => {
 function connectWebSocket(room, name) {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const wsUrl = `${protocol}://${window.location.host}/ws/${room}/${myUserId}?name=${encodeURIComponent(name)}`;
-    
+
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -105,7 +105,7 @@ function updateUI() {
     const me = roomState.participants.find(p => p.user_id === roomState.my_user_id);
     const hostControls = document.getElementById('host-controls');
     const revealBtn = document.getElementById('reveal-btn');
-    
+
     if (me && me.is_host) {
         hostControls.classList.remove('hidden');
         if (roomState.revealed) {
@@ -166,11 +166,11 @@ function updateUI() {
     // 4. Render participants
     const participantsList = document.getElementById('participants-list');
     participantsList.innerHTML = '';
-    
+
     roomState.participants.forEach(p => {
         const el = document.createElement('div');
         el.className = `participant ${!p.connected ? 'offline' : ''}`;
-        
+
         const cardEl = document.createElement('div');
         cardEl.className = 'p-card';
         if (p.has_voted) {
@@ -184,11 +184,11 @@ function updateUI() {
         } else {
             cardEl.textContent = '...';
         }
-        
+
         const nameEl = document.createElement('div');
         nameEl.className = 'p-name';
         nameEl.textContent = `${p.name} (#${p.user_id.split('-')[0]})` + (p.user_id === roomState.my_user_id ? ' (You)' : '') + (p.is_host ? ' 👑' : '');
-        
+
         el.appendChild(cardEl);
         el.appendChild(nameEl);
         participantsList.appendChild(el);
@@ -198,7 +198,7 @@ function updateUI() {
 function renderVotingCards() {
     const container = document.getElementById('voting-cards');
     container.innerHTML = '';
-    
+
     VOTE_VALUES.forEach(val => {
         const btn = document.createElement('button');
         btn.className = 'vote-card';
@@ -206,11 +206,11 @@ function renderVotingCards() {
         btn.addEventListener('click', () => {
             if (roomState && roomState.revealed) return;
             myVote = val;
-            
+
             // Visual feedback
             document.querySelectorAll('.vote-card').forEach(c => c.classList.remove('selected'));
             btn.classList.add('selected');
-            
+
             sendAction({ action: 'vote', value: val });
         });
         container.appendChild(btn);
