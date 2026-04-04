@@ -1,4 +1,4 @@
-ARG UBUNTU_TAG=26.04
+ARG UBUNTU_TAG=25.10
 
 # ==========================
 # Builder Stage
