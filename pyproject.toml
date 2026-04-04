@@ -1,6 +1,6 @@
 [project]
 name = "fastscrumpoker"
-version = "0.0.6"
+version = "0.0.7"
 description = "Scrum Poker using FastAPI"
 readme = "README.md"
 requires-python = ">=3.14"
