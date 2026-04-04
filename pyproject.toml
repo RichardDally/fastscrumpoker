@@ -9,6 +9,7 @@ dependencies = [
     "websockets",
     "uvicorn",
     "httpx",
+    "pygments>=2.20.0",
 ]
 
 [project.optional-dependencies]
