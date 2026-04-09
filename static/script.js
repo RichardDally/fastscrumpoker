@@ -1,4 +1,4 @@
-const VOTE_VALUES = ['0.5', '1', '2', '3', '5', '8'];
+const VOTE_VALUES = ['0.5', '1', '2', '3', '5', '8', '?'];
 
 let ws;
 let currentRoomId = window.SERVER_ROOM_ID;
